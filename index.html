@@ -134,24 +134,26 @@
       });
     }
 
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzCAqKeyRjplQo5jXDgCAorfvyvkbf8G8ELUzq4E2C892cFgQbSmzqWIalwkB6cEF18Eg/exec'; // ← Paste your Google Apps Script Web App URL here
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxIhdC4GCg0HD89vV1F2PtW4nuRStHPCUf3VlywJvd7fvl32nhWutjTo0Gy9-wzVVrgHw/exec'; // ← Paste your Google Apps Script Web App URL here
+const scriptURL = 'PASTE_YOUR_WEB_APP_URL_HERE';
 
-    function sendToGoogleSheet(data) {
-      fetch(scriptURL, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: { 'Content-Type': 'application/json' }
-      })
-      .then(res => console.log("✅ Logged to Google Sheet"))
-      .catch(err => console.error("❌ Error sending to Google Sheet:", err));
-    }
+function sendToGoogleSheet(data) {
+  const formData = new FormData();
+  formData.append('income', data.income);
+  formData.append('total', data.total);
+  formData.append('netSavings', data.netSavings);
+  data.categories.forEach((val, index) => {
+    formData.append(`category${index + 1}`, val);
+  });
 
-    // Load default categories
-    window.onload = () => {
-      defaultExpenses.forEach(([label, amount]) => {
-        createExpenseRow(label, amount);
-      });
-    };
+  fetch(scriptURL, {
+    method: 'POST',
+    body: formData
+  })
+  .then(res => res.text())
+  .then(response => console.log("✅ Data sent:", response))
+  .catch(err => console.error("❌ Error sending to Google Sheet:", err));
+};
   </script>
 </body>
 </html>
