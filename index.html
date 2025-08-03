@@ -144,7 +144,7 @@
       })
       .then(res => res.text())
       .then(response => console.log("✅ Sent to Sheet:", response))
-      .catch(err => console.error("❌ Sheet Error:", err));
+      .catch(err => console.error("❌ Error sending data:", err));
     }
 
     // Load default items on page load
