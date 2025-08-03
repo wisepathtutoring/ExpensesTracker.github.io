@@ -1,28 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Expense Tracker</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Home Expense Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-4">
-  <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-md">
-    <h1 class="text-2xl font-bold mb-4 text-center">🏡 Home Expenses Tracker</h1>
+<body class="bg-gray-100 text-gray-900 font-sans">
+  <div class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
+    <h1 class="text-3xl font-bold text-center mb-6">💸 Home Expense Calculator</h1>
 
-    <label class="block mb-2 font-semibold">Income:</label>
-    <input id="income" type="number" class="w-full p-2 border rounded mb-4" placeholder="Enter your income" />
+    <!-- Income -->
+    <div class="mb-6">
+      <label class="block font-semibold mb-1">💼 Monthly Income (Rs):</label>
+      <input type="number" id="income" class="w-full p-2 border rounded text-lg" placeholder="Enter your income..." />
+    </div>
 
-    <div id="expenseList" class="space-y-2"></div>
+    <!-- Expense Items -->
+    <h2 class="text-2xl font-semibold mb-4">🧾 Monthly Expenses</h2>
+    <div id="expense-list" class="space-y-3"></div>
 
-    <button onclick="addExpenseField()" class="bg-blue-500 text-white px-4 py-2 rounded mt-4">+ Add Other Expense</button>
-    <br>
+    <!-- Add Other Expense -->
+    <div class="mt-6">
+      <button onclick="addExpenseRow('', '')" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800">+ Add Other Expense</button>
+    </div>
 
-    <button onclick="calculateTotal()" class="bg-green-600 text-white font-semibold mt-6 px-6 py-2 rounded-full w-full">📊 Calculate</button>
+    <!-- Calculate Button -->
+    <div class="text-center mt-8">
+      <button onclick="calculateTotal()" class="bg-blue-600 text-white px-8 py-2 rounded-full text-lg hover:bg-blue-700 shadow">
+        📊 Calculate
+      </button>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="mt-6 hidden">
+      <h2 class="text-xl font-semibold mb-2">📋 Summary</h2>
+      <p><strong>Total Expenses:</strong> Rs. <span id="total-expenses"></span></p>
+      <p><strong>Net Savings:</strong> Rs. <span id="net-savings"></span></p>
+      <p><strong>Savings %:</strong> <span id="savings-percent"></span>%</p>
+      <p class="text-red-500 font-medium mt-2 hidden" id="warning-msg">⚠️ Expenses exceed income!</p>
+    </div>
   </div>
 
   <script>
-    const expenseList = document.getElementById('expenseList');
     const defaultExpenses = [
       ["💡 Utility", ""],
       ["🔌 Electricity Expenses", ""],
@@ -40,71 +60,97 @@
       ["🚗 Petrol Expenses", ""]
     ];
 
-    window.onload = () => {
-      defaultExpenses.forEach(([label, value]) => addExpenseField(label, value));
-    };
+    const expenseList = document.getElementById("expense-list");
 
-    function addExpenseField(label = '', value = '') {
-      const div = document.createElement('div');
-      div.className = 'flex items-center gap-2';
+    function createExpenseRow(labelText, amountValue = "") {
+      const row = document.createElement("div");
+      row.className = "flex items-center gap-4";
 
-      div.innerHTML = `
-        <input type="text" placeholder="Expense Category" class="flex-1 p-2 border rounded" value="${label}" />
-        <input type="number" placeholder="Amount" class="w-32 p-2 border rounded" value="${value}" />
-        <button onclick="this.parentElement.remove()" class="text-red-600">➖</button>
-      `;
+      row.innerHTML = 
+        <input type="text" class="label-input p-2 border rounded w-1/3 text-base" value="${labelText}" />
+        <div class="flex items-center w-2/3 gap-2">
+          <button class="bg-gray-200 text-xl px-3 py-1 rounded decrement">−</button>
+          <input type="number" class="expense-input w-full p-2 border rounded text-base" value="${amountValue}" />
+          <button class="bg-gray-200 text-xl px-3 py-1 rounded increment">+</button>
+        </div>
+      ;
 
-      expenseList.appendChild(div);
+      row.querySelector(".increment").addEventListener("click", () => {
+        const input = row.querySelector(".expense-input");
+        input.value = parseFloat(input.value || 0) + 500;
+      });
+
+      row.querySelector(".decrement").addEventListener("click", () => {
+        const input = row.querySelector(".expense-input");
+        input.value = Math.max(0, parseFloat(input.value || 0) - 500);
+      });
+
+      expenseList.appendChild(row);
+    }
+
+    function addExpenseRow(label = "", amount = "") {
+      createExpenseRow(label, amount);
     }
 
     function calculateTotal() {
-      const income = parseInt(document.getElementById('income').value) || 0;
-      const categories = [];
+      const income = parseFloat(document.getElementById("income").value) || 0;
       let total = 0;
 
-      document.querySelectorAll('#expenseList > div').forEach(row => {
-        const label = row.children[0].value.trim();
-        const amount = parseInt(row.children[1].value) || 0;
-        if (label) {
-          categories.push([label, amount]);
-          total += amount;
-        }
+      document.querySelectorAll(".expense-input").forEach(input => {
+        total += parseFloat(input.value) || 0;
       });
 
-      const netSavings = income - total;
+      const net = income - total;
+      const percent = income > 0 ? ((net / income) * 100).toFixed(2) : 0;
 
-      const payload = {
-        income,
-        total,
-        netSavings,
-        categories
-      };
+      document.getElementById("total-expenses").textContent = total.toFixed(2);
+      document.getElementById("net-savings").textContent = net.toFixed(2);
+      document.getElementById("savings-percent").textContent = percent;
+      document.getElementById("results").classList.remove("hidden");
 
-      sendToGoogleSheet(payload);
+      const warning = document.getElementById("warning-msg");
+      if (net < 0) warning.classList.remove("hidden");
+      else warning.classList.add("hidden");
+
+      const categoryValues = [];
+      document.querySelectorAll(".expense-input").forEach(input => {
+        categoryValues.push(parseFloat(input.value) || 0);
+      });
+
+      sendToGoogleSheet({
+        income: income,
+        total: total.toFixed(2),
+        netSavings: net.toFixed(2),
+        categories: categoryValues
+      });
     }
+
+    // ✅ PASTE YOUR DEPLOYED SCRIPT URL HERE
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxqrPFz7NOKq3JuWwt1PJU_uGLq51DLqf0O2dNdPN-msmuJvVyvuZeaIPh_MGxXu2GF/exec';
 
     function sendToGoogleSheet(data) {
       const formData = new FormData();
       formData.append('income', data.income);
       formData.append('total', data.total);
       formData.append('netSavings', data.netSavings);
-
-      data.categories.forEach(([label, amount], i) => {
-        formData.append(`label${i + 1}`, label);
-        formData.append(`amount${i + 1}`, amount);
+      data.categories.forEach((val, i) => {
+        formData.append(category${i + 1}, val);
       });
 
-      fetch('https://script.google.com/macros/s/AKfycbzf029RqMotdb-LFCr7Lpw-8SEGHuMkukUHA7xPb6Bwt12VwJDWByx_IKzqO7yf-gbjZg/exec', {
+      fetch(scriptURL, {
         method: 'POST',
         body: formData
       })
       .then(res => res.text())
-      .then(response => {
-        alert("✅ Data sent successfully");
-        console.log("✅ Response:", response);
-      })
+      .then(response => console.log("✅ Data sent:", response))
       .catch(err => console.error("❌ Error sending to Google Sheet:", err));
     }
+
+    window.onload = () => {
+      defaultExpenses.forEach(([label, amount]) => {
+        createExpenseRow(label, amount);
+      });
+    };
   </script>
 </body>
-</html>
+</html> 
