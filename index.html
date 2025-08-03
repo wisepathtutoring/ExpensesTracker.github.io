@@ -109,10 +109,16 @@
       document.getElementById("results").classList.remove("hidden");
 
       const warning = document.getElementById("warning-msg");
-      warning.classList.toggle("hidden", net >= 0);
+      if (net < 0) warning.classList.remove("hidden");
+      else warning.classList.add("hidden");
 
+      const categoryLabels = [];
       const categoryValues = [];
-      document.querySelectorAll(".expense-input").forEach(input => {
+
+      document.querySelectorAll(".label-input").forEach((input, index) => {
+        categoryLabels.push(input.value.trim() || `Category ${index + 1}`);
+      });
+      document.querySelectorAll(".expense-input").forEach((input) => {
         categoryValues.push(parseFloat(input.value) || 0);
       });
 
@@ -120,11 +126,12 @@
         income: income,
         total: total.toFixed(2),
         netSavings: net.toFixed(2),
-        categories: categoryValues
+        categories: categoryValues,
+        labels: categoryLabels
       });
     }
 
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxqrPFz7NOKq3JuWwt1PJU_uGLq51DLqf0O2dNdPN-msmuJvVyvuZeaIPh_MGxXu2GF/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyaFS4IjwsEWswS35BWIjgqpJ3rqyR9ug5rUJfeu-a5kfLG8fkPZLXFvmY7HKGTO3FiCw/exec';
 
     function sendToGoogleSheet(data) {
       const formData = new FormData();
@@ -133,6 +140,7 @@
       formData.append('netSavings', data.netSavings);
       data.categories.forEach((val, i) => {
         formData.append(`category${i + 1}`, val);
+        formData.append(`label${i + 1}`, data.labels[i]);
       });
 
       fetch(scriptURL, {
