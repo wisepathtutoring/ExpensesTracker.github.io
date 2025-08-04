@@ -126,7 +126,7 @@
     }
 
     // ✅ REPLACE with your own deployed script URL
-    const scriptURL = 'https://script.google.com/macros/s/AKfycby6Oxnc2LI2CUUqJ9fItwYm5BzXx-gWycXV_ukqUONX_Dj4yMfNGphFKt3ywlvVGWroPg/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbww9LiZGzOcisbN_m_Me9DfVVE8gCQur8t4ECmsg3X00Jhn3RvNnEQqOv-5ppAYBMUUbg/exec';
 
     function sendToGoogleSheet(data) {
       const formData = new FormData();
@@ -151,6 +151,7 @@
       defaultExpenses.forEach(([label, amount]) => {
         createExpenseRow(label, amount);
       });
+      document.querySelectorAll('input[type="number"]').forEach(input => input.value = 0);
     };
   </script>
 </body>
