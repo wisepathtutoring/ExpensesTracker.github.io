@@ -128,23 +128,28 @@
       document.querySelectorAll('input[type="number"]').forEach(input => input.value = 0);
     }
 
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzngWqJK40GL6SbH6B9YreUj3hAlA5qteuf5W5fbTsbdIZUVEtrlebrahlNVg2EpeMWYg/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxSezLP4y55j2RoN9HiG1mM92_9IQ-EzWu7gPf3z3M3xPIQppXjSm4oxd5agi5xGQZDjA/exec';
 
     function sendToGoogleSheet(data) {
-      const params = new URLSearchParams();
-      params.append('Income', data.income);
-      for (let [label, amount] of Object.entries(data.categories)) {
-        params.append(label, amount);
-      }
+  const params = new URLSearchParams();
+  params.append('Income', data.income);
+  for (let [label, amount] of Object.entries(data.categories)) {
+    params.append(label, amount);
+  }
 
-      fetch(scriptURL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: params
-      })
-      .then(() => console.log("✅ Data sent (CORS-free mode)"))
-      .catch(err => console.error("❌ Error sending to Google Sheet:", err));
-    }
+  fetch(scriptURL, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: params
+  })
+  .then(res => res.text())
+  .then(response => console.log("✅ Server responded:", response))
+  .catch(err => console.error("❌ Error sending to Google Sheet:", err));
+}
+
 
     window.onload = () => {
       defaultExpenses.forEach(([label, amount]) => {
