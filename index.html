@@ -123,27 +123,26 @@
         netSavings: net.toFixed(2),
         categories: categoryData
       });
+
+      // Reset all number fields to 0 after submission
+      document.querySelectorAll('input[type="number"]').forEach(input => input.value = 0);
     }
 
-    // ✅ REPLACE with your own deployed script URL
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbww9LiZGzOcisbN_m_Me9DfVVE8gCQur8t4ECmsg3X00Jhn3RvNnEQqOv-5ppAYBMUUbg/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxIWN8Z920jKjTvDUPtnR3hc69sn0PTJWRiSMyXSv5mV7Tc3_G8XbqyDhyr2gR1gTkWxw/exec';
 
     function sendToGoogleSheet(data) {
-      const formData = new FormData();
-      formData.append('income', data.income);
-      formData.append('total', data.total);
-      formData.append('netSavings', data.netSavings);
-
+      const params = new URLSearchParams();
+      params.append('Income', data.income);
       for (let [label, amount] of Object.entries(data.categories)) {
-        formData.append(label, amount);
+        params.append(label, amount);
       }
 
       fetch(scriptURL, {
         method: 'POST',
-        body: formData
+        mode: 'no-cors',
+        body: params
       })
-      .then(res => res.text())
-      .then(response => console.log("✅ Data sent:", response))
+      .then(() => console.log("✅ Data sent (CORS-free mode)"))
       .catch(err => console.error("❌ Error sending to Google Sheet:", err));
     }
 
@@ -156,4 +155,3 @@
   </script>
 </body>
 </html>
-
