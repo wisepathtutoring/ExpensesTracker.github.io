@@ -126,25 +126,33 @@
     // You will need to replace this URL with the new one you get after redeploying the script.
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwwyPl0egpdJDKktIJFZmsOYG8JSfm2LzX-bZIQ_e635hAe2VZi3_mZfACRsmiRcXhE_g/exec';
 
-    function sendToGoogleSheet(data) {
-      const params = new URLSearchParams();
-      params.append('Income', data.income);
-      for (let [label, amount] of Object.entries(data.categories)) {
-        params.append(label, amount);
-      }
+  function sendToGoogleSheet(data) {
+  const jsonData = {
+    Income: data.income,
+    ...data.categories
+  };
 
-      fetch(scriptURL, {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: params
-      })
-      .then(res => res.text())
-      .then(response => console.log("✅ Server responded:", response))
-      .catch(err => console.error("❌ Error sending to Google Sheet:", err));
+  fetch(scriptURL, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(jsonData)
+  })
+  .then(res => res.text())
+  .then(response => {
+    // You might need to parse the response if the Apps Script returns JSON
+    try {
+      const jsonResponse = JSON.parse(response);
+      console.log("✅ Server responded:", jsonResponse);
+      // You can handle success/error messages from the JSON response here
+    } catch (e) {
+      console.log("✅ Server responded with plain text:", response);
     }
+  })
+  .catch(err => console.error("❌ Error sending to Google Sheet:", err));
+}
 
 
     window.onload = () => {
