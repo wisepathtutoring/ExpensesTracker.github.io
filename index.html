@@ -126,11 +126,13 @@
     // You will need to replace this URL with the new one you get after redeploying the script.
     const scriptURL = 'https://script.google.com/macros/s/AKfycby3l6_IyEjcKj1QBnFuF8U19Si2Gq3RHZ-Pci42QqQB_Wg4sOaMrW04kRGQVJ-vvvZNiA/exec';
 
-  function sendToGoogleSheet(data) {
-  const formData = new URLSearchParams({
-    Income: data.income,
-    ...Object.fromEntries(Object.entries(data.categories).map(([k, v]) => [k, v]))
-  });
+function sendToGoogleSheet(data) {
+  const formData = new URLSearchParams();
+  formData.append("Income", data.income);
+
+  for (const [label, amount] of Object.entries(data.categories)) {
+    formData.append(label, amount);
+  }
 
   fetch(scriptURL, {
     method: 'POST',
@@ -150,6 +152,7 @@
   })
   .catch(err => console.error("❌ Error sending to Google Sheet:", err));
 }
+
 
 
 
