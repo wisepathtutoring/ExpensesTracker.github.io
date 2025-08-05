@@ -10,29 +10,24 @@
   <div class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-xl">
     <h1 class="text-3xl font-bold text-center mb-6">💸 Home Expense Calculator</h1>
 
-    <!-- Income -->
     <div class="mb-6">
       <label class="block font-semibold mb-1">💼 Monthly Income (Rs):</label>
       <input type="number" id="income" class="w-full p-2 border rounded text-lg" placeholder="Enter your income..." />
     </div>
 
-    <!-- Expense Items -->
     <h2 class="text-2xl font-semibold mb-4">🧾 Monthly Expenses</h2>
     <div id="expense-list" class="space-y-3"></div>
 
-    <!-- Add Other Expense -->
     <div class="mt-6">
       <button onclick="addExpenseRow('', '')" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800">+ Add Other Expense</button>
     </div>
 
-    <!-- Calculate Button -->
     <div class="text-center mt-8">
       <button onclick="calculateTotal()" class="bg-blue-600 text-white px-8 py-2 rounded-full text-lg hover:bg-blue-700 shadow">
         📊 Calculate
       </button>
     </div>
 
-    <!-- Results -->
     <div id="results" class="mt-6 hidden">
       <h2 class="text-xl font-semibold mb-2">📋 Summary</h2>
       <p><strong>Total Expenses:</strong> Rs. <span id="total-expenses"></span></p>
@@ -128,27 +123,28 @@
       document.querySelectorAll('input[type="number"]').forEach(input => input.value = 0);
     }
 
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwF5rmXziUWvXSlqhy83L2Z5LkEBC6Vb1NDpLcgmtX_l7bT3zlbVyxGSdd-qd-GFIBE/exec';
+    // You will need to replace this URL with the new one you get after redeploying the script.
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxSezLP4y55j2RoN9HiG1mM92_9IQ-EzWu7gPf3z3M3xPIQppXjSm4oxd5agi5xGQZDjA/exec';
 
     function sendToGoogleSheet(data) {
-  const params = new URLSearchParams();
-  params.append('Income', data.income);
-  for (let [label, amount] of Object.entries(data.categories)) {
-    params.append(label, amount);
-  }
+      const params = new URLSearchParams();
+      params.append('Income', data.income);
+      for (let [label, amount] of Object.entries(data.categories)) {
+        params.append(label, amount);
+      }
 
-  fetch(scriptURL, {
-    method: 'POST',
-    mode: 'cors',
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: params
-  })
-  .then(res => res.text())
-  .then(response => console.log("✅ Server responded:", response))
-  .catch(err => console.error("❌ Error sending to Google Sheet:", err));
-}
+      fetch(scriptURL, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: params
+      })
+      .then(res => res.text())
+      .then(response => console.log("✅ Server responded:", response))
+      .catch(err => console.error("❌ Error sending to Google Sheet:", err));
+    }
 
 
     window.onload = () => {
